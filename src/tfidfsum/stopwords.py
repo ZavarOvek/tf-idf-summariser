@@ -1,0 +1,23 @@
+"""Stopword lists. English comes from scikit-learn; Ukrainian is built in."""
+from __future__ import annotations
+
+UKRAINIAN_STOPWORDS = [
+    "а", "але", "б", "без", "би", "був", "була", "були", "було", "бути",
+    "в", "вже", "від", "він", "вона", "вони", "воно", "все", "всі", "ви",
+    "де", "для", "до", "є", "ж", "з", "за", "зі", "і", "із", "її", "їх",
+    "й", "його", "йому", "коли", "ла", "лише", "має", "між", "мене", "ми",
+    "на", "нас", "не", "нею", "ні", "ним", "них", "об", "один", "от",
+    "по", "при", "про", "під", "силу", "собі", "та", "так", "також",
+    "твій", "те", "ти", "тим", "то", "того", "той", "тому", "ту", "у",
+    "хто", "це", "цей", "цим", "цих", "ця", "цього", "часто", "чи",
+    "чого", "що", "щоб", "як", "яка", "які", "який", "якщо",
+]
+
+
+def stopwords_for(lang: str) -> list[str] | str | None:
+    """Return the stop_words argument for TfidfVectorizer for a language."""
+    if lang == "uk":
+        return UKRAINIAN_STOPWORDS
+    if lang == "en":
+        return "english"
+    return None
