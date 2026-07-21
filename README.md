@@ -1,3 +1,5 @@
+**English** | [Українська](README.uk.md)
+
 # tfidf-sum — Extractive TF-IDF Summarizer (Ukrainian & English)
 
 A command-line tool and Python library for extractive text summarization:
