@@ -1,5 +1,10 @@
 [English](README.md) | **Українська**
 
+[![CI](https://github.com/ZavarOvek/tf-idf-summariser/actions/workflows/ci.yml/badge.svg)](https://github.com/ZavarOvek/tf-idf-summariser/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 # tfidf-sum — Екстрактивна TF-IDF сумаризація (українська та англійська)
 
 Інструмент командного рядка та Python-бібліотека для екстрактивної
@@ -74,8 +79,9 @@ print(result.compression, result.top_terms[:5])
 ## Тестування
 
 ```bash
-pip install -e .[dev]
+pip install -e '.[dev]'
 pytest
+ruff check .
 ```
 
 ## Ліцензія
