@@ -3,7 +3,7 @@
 All notable changes to this project are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [0.1.1] - 2026-08-08
 
 ### Added
 - GitHub Actions CI: `ruff` lint job and a `pytest` matrix on Python 3.10-3.12.
