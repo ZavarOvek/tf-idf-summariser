@@ -1,4 +1,5 @@
 """Tests for tfidfsum."""
+
 from pathlib import Path
 
 import pytest
@@ -89,8 +90,7 @@ class TestCli:
         src = tmp_path / "in.txt"
         src.write_text(UK_TEXT, encoding="utf-8")
         out = tmp_path / "summary.txt"
-        code = main([str(src), "--sentences", "2", "-o", str(out),
-                     "--top-terms", "5"])
+        code = main([str(src), "--sentences", "2", "-o", str(out), "--top-terms", "5"])
         assert code == 0
         assert out.exists()
         assert len(out.read_text(encoding="utf-8").strip()) > 0

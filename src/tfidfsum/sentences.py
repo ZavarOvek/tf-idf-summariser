@@ -4,6 +4,7 @@ Deliberately dependency-free (no punkt model downloads): a regex splitter
 with an abbreviation guard, good enough for news/prose in Ukrainian and
 English and fully reproducible in any environment.
 """
+
 from __future__ import annotations
 
 import re
@@ -15,11 +16,40 @@ _TRAILING_WORD = re.compile(r"([\w'\u2019]+)\.$", re.UNICODE)
 # Common abbreviations that end with a period mid-sentence
 _ABBREVIATIONS = {
     # Ukrainian
-    "т", "тис", "грн", "напр", "див", "ст", "п", "пп", "р", "рр", "с",
-    "обл", "вул", "буд", "ім", "акад", "проф", "доц", "канд",
+    "т",
+    "тис",
+    "грн",
+    "напр",
+    "див",
+    "ст",
+    "п",
+    "пп",
+    "р",
+    "рр",
+    "с",
+    "обл",
+    "вул",
+    "буд",
+    "ім",
+    "акад",
+    "проф",
+    "доц",
+    "канд",
     # English
-    "mr", "mrs", "ms", "dr", "prof", "st", "no", "vs", "etc", "approx",
-    "e.g", "i.e", "fig", "vol",
+    "mr",
+    "mrs",
+    "ms",
+    "dr",
+    "prof",
+    "st",
+    "no",
+    "vs",
+    "etc",
+    "approx",
+    "e.g",
+    "i.e",
+    "fig",
+    "vol",
 }
 
 

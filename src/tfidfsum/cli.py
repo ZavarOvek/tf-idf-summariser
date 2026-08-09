@@ -1,4 +1,5 @@
 """Command-line interface: summarize a text file with TF-IDF."""
+
 from __future__ import annotations
 
 import argparse
@@ -15,18 +16,37 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("input", type=Path, help="input .txt file (UTF-8)")
     group = p.add_mutually_exclusive_group()
-    group.add_argument("--ratio", type=float, default=0.3,
-                       help="fraction of sentences to keep (default: 0.3)")
-    group.add_argument("--sentences", type=int, default=None,
-                       help="exact number of sentences to keep")
-    p.add_argument("--lang", choices=["auto", "uk", "en"], default="auto",
-                   help="text language (default: auto-detect)")
-    p.add_argument("--normalize", action="store_true",
-                   help="score by mean token weight (removes long-sentence bias)")
-    p.add_argument("--top-terms", type=int, default=0, metavar="N",
-                   help="also print the N highest-weighted terms")
-    p.add_argument("-o", "--out", type=Path, default=None,
-                   help="write the summary to a file instead of stdout only")
+    group.add_argument(
+        "--ratio", type=float, default=0.3, help="fraction of sentences to keep (default: 0.3)"
+    )
+    group.add_argument(
+        "--sentences", type=int, default=None, help="exact number of sentences to keep"
+    )
+    p.add_argument(
+        "--lang",
+        choices=["auto", "uk", "en"],
+        default="auto",
+        help="text language (default: auto-detect)",
+    )
+    p.add_argument(
+        "--normalize",
+        action="store_true",
+        help="score by mean token weight (removes long-sentence bias)",
+    )
+    p.add_argument(
+        "--top-terms",
+        type=int,
+        default=0,
+        metavar="N",
+        help="also print the N highest-weighted terms",
+    )
+    p.add_argument(
+        "-o",
+        "--out",
+        type=Path,
+        default=None,
+        help="write the summary to a file instead of stdout only",
+    )
     return p
 
 
@@ -55,8 +75,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     print(result.text)
-    print(f"\n[{len(result.sentences)} sentences, "
-          f"compression: {result.compression:.0%}]", file=sys.stderr)
+    print(
+        f"\n[{len(result.sentences)} sentences, compression: {result.compression:.0%}]",
+        file=sys.stderr,
+    )
 
     if args.top_terms > 0:
         print("\ntop terms:", file=sys.stderr)

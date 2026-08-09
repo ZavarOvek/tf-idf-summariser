@@ -4,6 +4,7 @@ Each sentence is treated as a document; its weight is the sum (or the
 per-token mean with ``normalize=True``) of the TF-IDF weights of its terms.
 The top-weighted sentences are returned in their original order.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
