@@ -9,6 +9,13 @@ from pathlib import Path
 from .summarizer import summarize
 
 
+def _positive_int(raw: str) -> int:
+    value = int(raw)
+    if value < 1:
+        raise argparse.ArgumentTypeError(f"must be >= 1, got {value}")
+    return value
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="tfidf-sum",
@@ -20,7 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--ratio", type=float, default=0.3, help="fraction of sentences to keep (default: 0.3)"
     )
     group.add_argument(
-        "--sentences", type=int, default=None, help="exact number of sentences to keep"
+        "--sentences", type=_positive_int, default=None, help="exact number of sentences to keep"
     )
     p.add_argument(
         "--lang",

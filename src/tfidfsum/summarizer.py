@@ -1,7 +1,15 @@
 """Extractive TF-IDF summarization.
 
-Each sentence is treated as a document; its weight is the sum (or the
-per-token mean with ``normalize=True``) of the TF-IDF weights of its terms.
+Each sentence is treated as a document. By default its weight is the sum of
+its L2-normalized TF-IDF vector, scikit-learn's default weighting. With
+``normalize=True`` it is the mean of its raw (un-normalized) TF-IDF weights
+per distinct term.
+
+The two need different matrices. Averaging an L2-normalized row does not
+remove the length effect, it inverts it: a sentence with n equally weighted
+terms has components of 1/sqrt(n), so the mean is 1/sqrt(n) and a one-word
+sentence always wins. Raw weights keep the per-term scale that a mean needs.
+
 The top-weighted sentences are returned in their original order.
 """
 
@@ -11,6 +19,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import normalize as l2_normalize
 
 from .sentences import detect_lang, split_sentences
 from .stopwords import stopwords_for
@@ -47,6 +56,8 @@ def summarize(
     """
     if not 0 < ratio <= 1:
         raise ValueError("ratio must be in (0, 1]")
+    if n_sentences is not None and n_sentences < 1:
+        raise ValueError("n_sentences must be >= 1")
 
     sentences = split_sentences(text)
     if len(sentences) <= 1:
@@ -59,15 +70,19 @@ def summarize(
         lowercase=True,
         token_pattern=_TOKEN_PATTERN,
         stop_words=stopwords_for(lang),
+        norm=None,
     )
-    matrix = vectorizer.fit_transform(sentences)
+    raw = vectorizer.fit_transform(sentences)
+    # Identical to TfidfVectorizer's default norm="l2" output.
+    matrix = l2_normalize(raw)
 
-    scores = np.asarray(matrix.sum(axis=1)).ravel()
     if normalize:
-        lengths = np.maximum(matrix.getnnz(axis=1), 1)
-        scores = scores / lengths
+        lengths = np.maximum(raw.getnnz(axis=1), 1)
+        scores = np.asarray(raw.sum(axis=1)).ravel() / lengths
+    else:
+        scores = np.asarray(matrix.sum(axis=1)).ravel()
 
-    k = n_sentences if n_sentences else max(1, round(len(sentences) * ratio))
+    k = n_sentences if n_sentences is not None else max(1, round(len(sentences) * ratio))
     k = min(k, len(sentences))
     selected = sorted(np.argsort(scores)[::-1][:k].tolist())
 

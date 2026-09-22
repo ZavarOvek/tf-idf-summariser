@@ -24,8 +24,9 @@ Shevchenko National University of Kyiv.
   tool runs identically in any environment
 - Summary size by ratio (`--ratio 0.3`) or exact sentence count
   (`--sentences 5`)
-- Optional length-bias correction (`--normalize`): score by mean token weight
-  instead of sum, so long sentences don't win automatically
+- Optional length-bias correction (`--normalize`): score by the mean raw
+  TF-IDF weight per distinct term instead of the sum, so neither long nor
+  short sentences win by length alone
 - Reports compression ratio and the highest-weighted terms of the document
 - Transparent and deterministic — no training, no API calls; fully tested
   (pytest)

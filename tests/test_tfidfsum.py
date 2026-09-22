@@ -2,11 +2,14 @@
 
 from pathlib import Path
 
+import numpy as np
 import pytest
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from tfidfsum.cli import main
 from tfidfsum.sentences import detect_lang, split_sentences
-from tfidfsum.summarizer import summarize
+from tfidfsum.stopwords import stopwords_for
+from tfidfsum.summarizer import _TOKEN_PATTERN, summarize
 
 UK_TEXT = (
     "Корпусна лінгвістика вивчає мову на основі великих зібрань текстів. "
@@ -84,6 +87,32 @@ class TestSummarize:
         result = summarize(UK_TEXT, n_sentences=2, normalize=True)
         assert len(result.sentences) == 2
 
+    @pytest.mark.parametrize("k", [1, 2, 3, 4])
+    def test_default_scoring_matches_sklearn_l2(self, k):
+        # The default path must stay what it was: sum of sklearn's default
+        # (L2-normalized) TF-IDF rows. Guards the split into raw + L2 matrices.
+        sentences = split_sentences(UK_TEXT)
+        matrix = TfidfVectorizer(
+            token_pattern=_TOKEN_PATTERN, stop_words=stopwords_for("uk")
+        ).fit_transform(sentences)
+        expected = sorted(np.argsort(np.asarray(matrix.sum(axis=1)).ravel())[::-1][:k].tolist())
+        assert summarize(UK_TEXT, n_sentences=k).selected_indices == expected
+
+    def test_normalize_does_not_reward_shortness_itself(self):
+        # The mean of an L2-normalized row is 1/sqrt(n) for n equal weights,
+        # so under the old implementation any one-word sentence scored 1.0,
+        # the maximum possible, whatever the word. Here the one-word sentence
+        # is the most common word in the text and must lose on content.
+        text = "Корпус росте. Корпус великий. Корпус. Лематизація вимагає морфологічного словника."
+        result = summarize(text, n_sentences=1, normalize=True)
+        assert result.sentences == ["Лематизація вимагає морфологічного словника."]
+
+    @pytest.mark.parametrize("n", [0, -1])
+    def test_invalid_sentence_count(self, n):
+        # -1 used to slice argsort as [:-1] and return all but one sentence.
+        with pytest.raises(ValueError, match="n_sentences"):
+            summarize(UK_TEXT, n_sentences=n)
+
 
 class TestCli:
     def test_end_to_end(self, tmp_path: Path, capsys):
@@ -97,6 +126,14 @@ class TestCli:
 
     def test_missing_file(self, tmp_path: Path):
         assert main([str(tmp_path / "nope.txt")]) == 1
+
+    @pytest.mark.parametrize("n", ["0", "-1"])
+    def test_rejects_non_positive_sentences(self, tmp_path: Path, n):
+        src = tmp_path / "in.txt"
+        src.write_text(UK_TEXT, encoding="utf-8")
+        with pytest.raises(SystemExit) as exc:
+            main([str(src), "--sentences", n])
+        assert exc.value.code == 2
 
     def test_empty_file(self, tmp_path: Path):
         src = tmp_path / "empty.txt"

@@ -5,6 +5,16 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+- `--normalize` averaged an L2-normalized row, whose mean is 1/sqrt(n) for n
+  equal weights: instead of removing the long-sentence bias it created a
+  short-sentence one, and any one-word sentence scored the maximum 1.0. It now
+  averages raw TF-IDF weights per distinct term. Default (sum) scoring and
+  `top_terms` are unchanged.
+- `n_sentences` below 1 raises `ValueError`; `--sentences` rejects it with exit
+  code 2. `-1` used to return every sentence but one, `0` silently fell back
+  to `--ratio`.
+
 ### Changed
 - Adopted `ruff format` as the project formatter; the whole tree was
   reformatted in a single dedicated commit (see `.git-blame-ignore-revs`).
