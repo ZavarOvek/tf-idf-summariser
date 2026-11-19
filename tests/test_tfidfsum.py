@@ -205,3 +205,14 @@ class TestEmptyVocabulary:
         assert captured.out == ""
         assert captured.err.startswith("error: no content words left")
         assert "Traceback" not in captured.err
+
+
+def test_summary_keeps_original_apostrophes():
+    # Normalization is for scoring only; picked sentences come back verbatim.
+    text = "Мʼясо дороге. Сімʼя купує мʼясо щотижня. Погода сьогодні гарна."
+    result = summarize(text, n_sentences=3)
+    assert result.sentences == [
+        "Мʼясо дороге.",
+        "Сімʼя купує мʼясо щотижня.",
+        "Погода сьогодні гарна.",
+    ]

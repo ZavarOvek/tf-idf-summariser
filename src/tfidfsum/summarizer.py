@@ -64,7 +64,9 @@ def summarize(
     if n_sentences is not None and n_sentences < 1:
         raise ValueError("n_sentences must be >= 1")
 
-    sentences = split_sentences(normalize_apostrophes(text))
+    # Sentences are returned verbatim; only the copies fed to the vectorizer are
+    # normalized, so an extractive summary never rewrites the author's text.
+    sentences = split_sentences(text)
     if len(sentences) <= 1:
         return Summary(sentences, list(range(len(sentences))), 1.0)
 
@@ -77,13 +79,14 @@ def summarize(
         stop_words=stopwords_for(lang),
         norm=None,
     )
+    normalized = [normalize_apostrophes(sentence) for sentence in sentences]
     analyzer = vectorizer.build_analyzer()
-    if not any(analyzer(sentence) for sentence in sentences):
+    if not any(analyzer(sentence) for sentence in normalized):
         raise SummarizationError(
             "no content words left after stop-word removal: the text consists only of "
             "stop words, numbers or symbols"
         )
-    raw = vectorizer.fit_transform(sentences)
+    raw = vectorizer.fit_transform(normalized)
     # Identical to TfidfVectorizer's default norm="l2" output.
     matrix = l2_normalize(raw)
 
