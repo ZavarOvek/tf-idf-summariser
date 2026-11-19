@@ -70,6 +70,10 @@ print(result.text)
 print(result.compression, result.top_terms[:5])
 ```
 
+Text with no content words left after stop-word removal (only stop words,
+numbers or symbols) raises `tfidfsum.SummarizationError`, a subclass of
+`ValueError`; the CLI prints its message and exits with code 1.
+
 ## Limitations & roadmap
 
 Extractive summarization reuses source sentences verbatim — no paraphrasing.

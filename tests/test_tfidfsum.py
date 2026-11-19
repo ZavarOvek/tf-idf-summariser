@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from tfidfsum import SummarizationError
 from tfidfsum.apostrophes import normalize_apostrophes
 from tfidfsum.cli import main
 from tfidfsum.sentences import detect_lang, split_sentences
@@ -172,3 +173,35 @@ class TestApostrophes:
         assert terms == ascii_terms
         assert "м'ясо" in terms
         assert not any(variant in t for t in terms)
+
+
+STOPWORD_ONLY = {
+    "uk": "Це так. Це і ми. Ви та він. 2024 1999.",
+    "en": "It is the one. And so it was. 2024 1999.",
+}
+
+
+class TestEmptyVocabulary:
+    @pytest.mark.parametrize("lang", ["uk", "en"])
+    def test_stopword_only_text_raises(self, lang):
+        with pytest.raises(SummarizationError, match="no content words"):
+            summarize(STOPWORD_ONLY[lang], lang=lang)
+
+    def test_is_a_value_error(self):
+        assert issubclass(SummarizationError, ValueError)
+        with pytest.raises(ValueError):
+            summarize(STOPWORD_ONLY["uk"], lang="uk")
+
+    def test_no_fallback_to_first_sentences(self):
+        # Must not quietly return something that looks like a summary.
+        with pytest.raises(SummarizationError):
+            summarize(STOPWORD_ONLY["en"], n_sentences=1)
+
+    def test_cli_prints_message_and_exits_1(self, tmp_path: Path, capsys):
+        src = tmp_path / "stop.txt"
+        src.write_text(STOPWORD_ONLY["uk"], encoding="utf-8")
+        assert main([str(src), "--lang", "uk"]) == 1
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err.startswith("error: no content words left")
+        assert "Traceback" not in captured.err

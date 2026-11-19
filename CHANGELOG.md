@@ -5,6 +5,12 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+- `SummarizationError` (a `ValueError` subclass, exported from the package) is
+  raised when multi-sentence input has no content words left after stop-word
+  removal, instead of scikit-learn's "empty vocabulary" `ValueError`. The CLI
+  prints the message and exits with code 1.
+
 ### Fixed
 - Apostrophe variants inside words (`’ ʼ ‘ \` ´ ′ ʹ ＇`) are normalized to the ASCII
   apostrophe before sentence splitting, so `м'ясо`, `м’ясо` and `мʼясо` are one

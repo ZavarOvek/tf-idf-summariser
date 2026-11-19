@@ -29,6 +29,10 @@ from .stopwords import stopwords_for
 _TOKEN_PATTERN = r"[а-щьюяєіїґa-z]+(?:['\u2019\-][а-щьюяєіїґa-z]+)*"
 
 
+class SummarizationError(ValueError):
+    """The text cannot be summarized (e.g. it has no content words)."""
+
+
 @dataclass
 class Summary:
     sentences: list[str]
@@ -73,6 +77,12 @@ def summarize(
         stop_words=stopwords_for(lang),
         norm=None,
     )
+    analyzer = vectorizer.build_analyzer()
+    if not any(analyzer(sentence) for sentence in sentences):
+        raise SummarizationError(
+            "no content words left after stop-word removal: the text consists only of "
+            "stop words, numbers or symbols"
+        )
     raw = vectorizer.fit_transform(sentences)
     # Identical to TfidfVectorizer's default norm="l2" output.
     matrix = l2_normalize(raw)
