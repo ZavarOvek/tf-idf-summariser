@@ -25,7 +25,7 @@ from .sentences import detect_lang, split_sentences
 from .stopwords import stopwords_for
 
 # Words with letters (Cyrillic or Latin), apostrophes and in-word hyphens
-_TOKEN_PATTERN = r"[а-щьюяєіїґa-z]+(?:['\u2019\-][а-щьюяєіїґa-z]+)*"
+_TOKEN_PATTERN = r"[а-щьюяєіїґa-z]+(?:['\u2019\u02bc\-][а-щьюяєіїґa-z]+)*"
 
 
 @dataclass

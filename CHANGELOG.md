@@ -15,6 +15,10 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   code 2. `-1` used to return every sentence but one, `0` silently fell back
   to `--ratio`.
 
+- The modifier-letter apostrophe U+02BC (the one Ukrainian orthography
+  prescribes) was not part of a word, so `мʼясо` was tokenized as `м` and
+  `ясо`; it is now treated like `'` and U+2019.
+
 ### Changed
 - Adopted `ruff format` as the project formatter; the whole tree was
   reformatted in a single dedicated commit (see `.git-blame-ignore-revs`).

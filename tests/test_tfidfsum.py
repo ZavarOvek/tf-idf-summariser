@@ -1,5 +1,6 @@
 """Tests for tfidfsum."""
 
+import re
 from pathlib import Path
 
 import numpy as np
@@ -106,6 +107,13 @@ class TestSummarize:
         text = "Корпус росте. Корпус великий. Корпус. Лематизація вимагає морфологічного словника."
         result = summarize(text, n_sentences=1, normalize=True)
         assert result.sentences == ["Лематизація вимагає морфологічного словника."]
+
+    @pytest.mark.parametrize("apostrophe", ["'", "\u2019", "\u02bc"])
+    def test_apostrophe_variants_stay_in_one_token(self, apostrophe):
+        # U+02BC is the apostrophe Ukrainian orthography prescribes; it used to
+        # split "мʼясо" into "м" and "ясо".
+        word = f"м{apostrophe}ясо"
+        assert re.findall(_TOKEN_PATTERN, word) == [word]
 
     @pytest.mark.parametrize("n", [0, -1])
     def test_invalid_sentence_count(self, n):
