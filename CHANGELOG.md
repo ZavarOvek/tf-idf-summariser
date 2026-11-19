@@ -6,6 +6,12 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Fixed
+- Apostrophe variants inside words (`’ ʼ ‘ \` ´ ′ ʹ ＇`) are normalized to the ASCII
+  apostrophe before sentence splitting, so `м'ясо`, `м’ясо` and `мʼясо` are one
+  term instead of three. Only apostrophes between two letters are touched;
+  quotation marks around words are left alone. Summary sentences may now
+  contain `'` where the input had a variant. The bundled stopword list goes
+  through the same normalization.
 - `--normalize` averaged an L2-normalized row, whose mean is 1/sqrt(n) for n
   equal weights: instead of removing the long-sentence bias it created a
   short-sentence one, and any one-word sentence scored the maximum 1.0. It now

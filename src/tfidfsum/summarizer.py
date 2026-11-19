@@ -21,6 +21,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import normalize as l2_normalize
 
+from .apostrophes import normalize_apostrophes
 from .sentences import detect_lang, split_sentences
 from .stopwords import stopwords_for
 
@@ -59,7 +60,7 @@ def summarize(
     if n_sentences is not None and n_sentences < 1:
         raise ValueError("n_sentences must be >= 1")
 
-    sentences = split_sentences(text)
+    sentences = split_sentences(normalize_apostrophes(text))
     if len(sentences) <= 1:
         return Summary(sentences, list(range(len(sentences))), 1.0)
 

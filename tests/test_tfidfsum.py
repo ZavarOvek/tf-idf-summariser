@@ -6,9 +6,10 @@ import numpy as np
 import pytest
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from tfidfsum.apostrophes import normalize_apostrophes
 from tfidfsum.cli import main
 from tfidfsum.sentences import detect_lang, split_sentences
-from tfidfsum.stopwords import stopwords_for
+from tfidfsum.stopwords import UKRAINIAN_STOPWORDS, stopwords_for
 from tfidfsum.summarizer import _TOKEN_PATTERN, summarize
 
 UK_TEXT = (
@@ -139,3 +140,35 @@ class TestCli:
         src = tmp_path / "empty.txt"
         src.write_text("", encoding="utf-8")
         assert main([str(src)]) == 1
+
+
+APOSTROPHE_VARIANTS = ["\u2019", "\u02bc", "\u2018", "`", "\u00b4", "\u2032", "\u02b9", "\uff07"]
+
+
+class TestApostrophes:
+    @pytest.mark.parametrize("variant", APOSTROPHE_VARIANTS)
+    def test_variant_normalized_between_letters(self, variant):
+        assert normalize_apostrophes(f"м{variant}ясо, don{variant}t") == "м'ясо, don't"
+
+    def test_ascii_unchanged(self):
+        assert normalize_apostrophes("м'ясо") == "м'ясо"
+
+    @pytest.mark.parametrize("variant", APOSTROPHE_VARIANTS)
+    def test_quotes_around_words_untouched(self, variant):
+        text = f"він сказав {variant}цитата{variant} і пішов, {variant}12{variant}"
+        assert normalize_apostrophes(text) == text
+
+    def test_stopwords_are_normalized(self):
+        assert all(normalize_apostrophes(w) == w for w in UKRAINIAN_STOPWORDS)
+
+    @pytest.mark.parametrize("variant", ["\u2019", "\u02bc"])
+    def test_variant_counts_with_ascii_twin(self, variant):
+        # м'ясо and мʼясо must be one term, not two with split weight.
+        text = (
+            f"Ми купили м'ясо на ринку. Свіже м{variant}ясо коштує дорого. Кіт спав на підвіконні."
+        )
+        terms = dict(summarize(text, n_sentences=2).top_terms)
+        ascii_terms = dict(summarize(text.replace(variant, "'"), n_sentences=2).top_terms)
+        assert terms == ascii_terms
+        assert "м'ясо" in terms
+        assert not any(variant in t for t in terms)

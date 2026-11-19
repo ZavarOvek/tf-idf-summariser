@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .apostrophes import normalize_apostrophes
+
 UKRAINIAN_STOPWORDS = [
     "а",
     "але",
@@ -92,6 +94,8 @@ UKRAINIAN_STOPWORDS = [
     "який",
     "якщо",
 ]
+
+UKRAINIAN_STOPWORDS = [normalize_apostrophes(word) for word in UKRAINIAN_STOPWORDS]
 
 
 def stopwords_for(lang: str) -> list[str] | str | None:
